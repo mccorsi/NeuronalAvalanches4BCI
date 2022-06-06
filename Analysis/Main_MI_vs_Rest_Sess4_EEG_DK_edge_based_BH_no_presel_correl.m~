@@ -1,0 +1,463 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % MAIN - Analysi fatta sul dataset a disposizione - 20 soggetti - Sess. 4 - EEG - Desikan-Killiany
+    % Authors: MCC
+    % Date: 21/03/2022
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+close all; clear; clc;
+
+%% To be updated
+
+root_path='/Users/marie-constance.corsi/Documents/GitHub/NeuronalAvalanches4BCI/';
+
+%%
+db_path=strcat(root_path,'Database/');
+fig_path=strcat(root_path,'Figures/');
+
+cd(strcat(root_path,'/Scripts'))
+Start_SessionMatlab 
+
+subject_IDs={'',... % list of subjects_IDs
+    };
+nb_subj=size(subject_IDs,2);
+
+
+load(strcat(root_path,'/Scripts/Visualization_Cortex/cortex_15002V_MNI.mat'));
+idx_DK=3;
+nb_ROIs_DK=size(cortex_15002V_MNI.Atlas(idx_DK).Scouts,2);
+labels_DK={cortex_15002V_MNI.Atlas(idx_DK).Scouts(1:nb_ROIs_DK).Label};
+
+modality='EEG';
+atlas='DK';
+fs=250;
+
+%% Parameters to be tested
+
+% per default
+freq_band_default={[3 40]};
+z_thresh_default=[3]; 
+min_size_aval_default=[5]; 
+n_binning_default=[2]; %=1
+
+% for the robust
+freq_band_def=freq_band_default;
+z_thresh=[2.5, 2.7, 3, 3.2]; 
+min_size_aval=[1,5,10,15]; 
+n_binning=1:3;
+
+%% Calcola delle valanghe + TM (fatto per 20 sogg. x V2)
+% path_file_MI=strcat(db_path,'Data_EEG_MI_DK.mat');
+% path_file_Rest=strcat(db_path,'Data_EEG_Baseline_DK.mat');
+path_file_MI=strcat(db_path,'Data_EEG_MI_DK_V2.mat');
+path_file_Rest=strcat(db_path,'Data_EEG_Baseline_DK_V2.mat');
+
+
+Compute_Avalanches_EEG_DK(path_file_MI, path_file_Rest, subject_IDs, db_path, labels_DK, freq_band_def, z_thresh, fs, min_size_aval)
+
+
+%% compute sigma - once
+% clc
+% 
+% for kk_freq=1:size(freq_band_def,1) % ogni banda di frequenza considerata
+%     
+% %     for kk_zthresh=1:length(z_thresh) % ogni soglia x z-score 
+%         for kk_subj=1:nb_subj % ogni soggetto 
+%             for kk_min_size_aval=1:length(min_size_aval)
+%             % sigma
+%             filename_Avalanches_subj_file= strcat(strcat(db_path,'Avalanches_Analysis_ds_',subject_IDs{kk_subj} ,'_',num2str(freq_band_def{kk_freq}(1)), '_', num2str(freq_band_def{kk_freq}(2)),'_z_', num2str(z_thresh), '_min_size_aval_',num2str(min_size_aval(kk_min_size_aval)),'_Sess4_EEG_DK.mat'));
+%             load(filename_Avalanches_subj_file)
+%             avalanches_binned=avalanches;
+%             %% binning
+%             for kk_bin= 1:size(n_binning,2) %loops across binnings, unbinned, 2 and 3
+%             % avalanches
+%                 for kk1=1:size(avalanches_binned{kk_bin},2) % nb trials
+%                     kk4=1;
+%                     for kk2=1:size(avalanches_binned{kk_bin}{kk1},2) 
+%                             if size(avalanches_binned{kk_bin}{kk1}{kk2},2)>3
+%                                 sigma_temp(kk4) = sigma_avalanche(avalanches_binned{kk_bin}{kk1}{kk2});
+%                                 kk4=kk4+1;
+%                             else
+%                                 continue
+%                             end
+%                     end
+%                     sigma_trial{kk1}=geomean(sigma_temp);
+%                 end
+%                 sigma_subj{kk_bin}(kk_subj)=geomean(sigma_trial{kk1});
+%                 
+%             end
+% %                 %% no binning
+% %                for kk1=1:size(avalanches,2) % nb trials
+% %                     kk4=1;
+% %                     for kk2=1:size(avalanches{kk1},2) 
+% %                             if size(avalanches{kk1}{kk2},2)>3
+% %                                 sigma_temp_unbinned(kk4) = sigma_avalanche(avalanches{kk1}{kk2});
+% %                                 kk4=kk4+1;
+% %                             else
+% %                                 continue
+% %                             end
+% %                     end
+% %                     sigma_trial_unbinned{kk1}=geomean(sigma_temp_unbinned);
+% %                 end
+% %                 sigma_subj_unbinned(kk_subj)=geomean(sigma_trial_unbinned{kk1});
+%        end
+% %             sigma_group_unbinned=geomean(sigma_subj_unbinned);
+%             
+%         for kk_bin= 1:size(n_binning,2)
+%             sigma_group(kk_bin)=geomean(sigma_subj{kk_bin});
+%         end
+%         
+% %         var_temp=abs(1-[sigma_group_unbinned,sigma_group]);
+%         var_temp=abs(1-[sigma_group]);
+%         idx_sigma=find(var_temp==min(var_temp));
+%         sigma_opt=var_temp(idx_sigma)+1;
+% 
+%         save(strcat(db_path,'Sigma_Avalanches_Analysis_ds_Group_',num2str(freq_band_def{kk_freq}(1)), '_', num2str(freq_band_def{kk_freq}(2)),'_z_', num2str(z_thresh),'_min_size_aval_', num2str(min_size_aval),'_Sess4_EEG_DK.mat'),...
+%                 'sigma_group',...% directly unbinned and binned
+%                 'sigma_subj',...
+%                 'sigma_opt');
+% %         end
+%     end
+% end
+% 
+
+%% Statistical Analysis - Individual
+% TODO: 10000 perm + check 
+clc
+numperm=10000;%200
+list_p_thresh=[0.05;0.025;0.05];%0.025;%0.05; % reliable analysis
+p_thresh_stat=0.05; % individual stat
+nb_perm_rand=10000;%200
+
+for kk_freq=1:size(freq_band_def,1) % ogni banda di frequenza considerata
+%     for kk_zthresh=1:length(z_thresh) % ogni soglia x z-score 
+        for kk_binning=1:length(n_binning) % loop sul binning
+            for kk_min_size_aval=1:length(min_size_aval)
+        %% TODO : add loop sul binning
+        
+            for kk_subj=1:nb_subj % ogni soggetto
+                filename_Avalanches_subj=strcat(db_path,'Avalanches_Analysis_ds_',subject_IDs{kk_subj} ,'_',num2str(freq_band_def{kk_freq}(1)), '_', num2str(freq_band_def{kk_freq}(2)),'_z_', num2str(z_thresh), '_min_size_aval_',num2str(min_size_aval(kk_min_size_aval)),'_Sess4_EEG_DK.mat');
+                filename_Avalanches_subj_file= strcat('Avalanches_Analysis_ds_',subject_IDs{kk_subj} ,'_',num2str(freq_band_def{kk_freq}(1)), '_', num2str(freq_band_def{kk_freq}(2)),'_z_', num2str(z_thresh), '_binning_',num2str(n_binning(kk_binning)),'_min_size_aval_',num2str(min_size_aval(kk_min_size_aval)),'_Sess4_', modality, '_',atlas);
+
+                disp(strcat('%%%%%%%%%%%%%%%%%% Individual stat analysis - EEG - DK - ',subject_IDs{kk_subj}, ' - ', num2str(freq_band_def{kk_freq}(1)), '-', num2str(freq_band_def{kk_freq}(2)),'Hz ',' - z_thresh:', num2str(z_thresh), ' - p_thresh:,' , num2str(p_thresh_stat),'%%%%%%%%%%%%%%%%%%'));
+                % individual-level
+                Statistical_IndividualAnalysis_BH(filename_Avalanches_subj, filename_Avalanches_subj_file, fig_path, db_path, numperm, nb_ROIs_DK, p_thresh_stat, cortex_15002V_MNI, idx_DK, n_binning(kk_binning));
+                % prepare materials to compute reliability:
+                load(filename_Avalanches_subj);
+                load(strcat(db_path,'Stat_Analysis_Indiv_',filename_Avalanches_subj_file,'_BH_p_thresh_',num2str(p_thresh_stat),'.mat'));
+                matrix_signif_diff(:,:,kk_subj)=pval_diff_perm_corrected_BH; % analisi BH
+                matrix_signif_abs_diff(:,:,kk_subj)=pval_abs_diff_perm_corrected_BH; % analisi BH
+            end
+
+            group_generator = @(x)x(randperm(numel(x)));
+            temp_rr=[];
+            temp_rr_abs=[];
+            % reliablity over the subjects - group level
+            for kk1=1:nb_perm_rand
+                for kk_subj=1:nb_subj
+                    rand_pos=group_generator(1:nb_ROIs_DK);
+                    newrand_abs(:,:,kk_subj)=matrix_signif_abs_diff(rand_pos,rand_pos,kk_subj);
+                    newrand(:,:,kk_subj)=matrix_signif_diff(rand_pos,rand_pos,kk_subj);
+                    
+                end
+                rr_abs(:,:,kk1)=sum(newrand_abs,3);
+                rr(:,:,kk1)=sum(newrand,3);
+                
+                temp_rr(:,kk1)=sum(rr(:,:,kk1)<0.05);
+                temp_rr_abs(:,kk1)=sum(rr_abs(:,:,kk1)<0.05);
+            end
+            rr_thresh=mean(mean(temp_rr));
+            rr_abs_thresh=mean(mean(temp_rr_abs));
+            
+            for kk_roi=1:nb_ROIs_DK
+                temp_node_abs=sum(sum(matrix_signif_abs_diff,3),1);
+                pval_node_abs_reliab_uncorrect(kk_roi)=length(find(temp_rr_abs(kk_roi,:)>temp_node_abs(kk_roi)))/nb_perm_rand;
+                temp_node=sum(sum(matrix_signif_diff,3),1);
+                pval_node_reliab_uncorrect(kk_roi)=length(find(temp_rr(kk_roi,:)>temp_node(kk_roi)))/nb_perm_rand;
+            end
+            
+            
+            % correction - BH
+            pval_node_abs_reliab_correct=pval_adjust(pval_node_abs_reliab_uncorrect,'BH');
+            pval_node_reliab_correct=pval_adjust(pval_node_reliab_uncorrect,'BH');
+            
+%             % find nodes where test_corrected<0.05
+%             list_nodes_abs_reliab=find(pval_node_abs_reliab_correct<0.05);
+%             list_nodes_reliab=find(pval_node_reliab_correct<0.05);
+            
+            
+        % edges
+        test_abs=sum(matrix_signif_abs_diff,3);
+        test2_abs=repmat(test_abs, 1, 1, nb_perm_rand);
+        abs_cmp=rr_abs>test2_abs; 
+        signif_abs_cmp=pval_adjust(sum(abs_cmp,3)./numperm,'BH')<0.05; % BH
+%         signif_abs_cmp = signif_abs_cmp - diag(diag(signif_abs_cmp));
+%         signif_abs_cmp_bhfdr=reshape(mafdr(reshape(sum(abs_cmp,3)./numperm,nb_ROIs_DK*nb_ROIs_DK,1),'BHFDR','true'),nb_ROIs_DK,nb_ROIs_DK);
+
+%         
+%         mask=tril(ones(nb_ROIs_DK),-1);
+%         temp=sum(abs_cmp,3)./numperm;
+%         p_vect=temp(logical(mask));
+%         signif_abs_cmp_bhfdr=mafdr(p_vect,'BHFDR','true');
+        
+        
+        
+        
+        test=sum(matrix_signif_diff,3); % quanto spesso ho una stima di un dato arco
+        test2=repmat(test, 1, 1, nb_perm_rand);
+        cmp=rr>test2; 
+        signif_cmp=pval_adjust(sum(cmp,3)./numperm,'BH')<0.05; % BH
+%         signif_cmp=sum(cmp,3)./numperm<p_thresh_BH_reliable; % BH
+        
+%         signif_cmp = signif_cmp - diag(diag(signif_cmp));
+%         
+%         temp=sum(cmp,3)./numperm;
+%         p_vect=temp(logical(mask));
+%         signif_cmp_bhfdr=mafdr(p_vect,'BHFDR','true');
+%         signif_cmp_bhfdr=reshape(mafdr(reshape(sum(cmp,3)./numperm,nb_ROIs_DK*nb_ROIs_DK,1),'BHFDR','true'),nb_ROIs_DK,nb_ROIs_DK);
+        
+
+        % nodes - reliability based on edges results
+        node_cmp=sum(signif_cmp,2); % nodi dov'? signif
+        node_abs_cmp=sum(signif_abs_cmp,2); % nodi dov'? signif
+%         test_abs=sum(node_signif_abs_diff,2);
+%         test2_abs=repmat(test_abs, 1, nb_perm_rand);
+%         abs_cmp=rr_node_abs>test2_abs; 
+%         node_abs_cmp=sum(abs_cmp,2)./numperm<p_thresh_BH_reliable_nodes; % BH
+% 
+%         test=sum(node_signif_diff,2); % quanto spesso ho una stima di un dato arco
+%         test2=repmat(test, 1, nb_perm_rand);
+%         cmp=rr_node>test2; 
+%         node_cmp=sum(cmp,2)./numperm<p_thresh_BH_reliable_nodes; % BH
+        
+        
+        
+        save(strcat(db_path,'Reliable_Analysis_Edge_Based_BH_p_thresh_edges_', num2str(0.05),'_p_thresh_nodes_',num2str(0.05),'_Group_',num2str(freq_band_def{kk_freq}(1)), '_', num2str(freq_band_def{kk_freq}(2)),'_z_', num2str(z_thresh), '_binning_',num2str(n_binning(kk_binning)),'_min_size_aval_',num2str(min_size_aval(kk_min_size_aval)),'_Sess4_', modality, '_',atlas,'.mat'),...
+                'signif_abs_cmp',... % post-correction bh
+                'signif_cmp',... % post-correction bh
+                'node_cmp',... % node signif
+                'node_abs_cmp',... % node signif
+                'rr_thresh',... % thresh for the nodes selection
+                'rr_abs_thresh',...
+                'pval_node_abs_reliab_uncorrect',...
+                'pval_node_reliab_uncorrect',...
+                'pval_node_abs_reliab_correct',...
+                'pval_node_reliab_correct',...
+                '-v7.3');
+        
+        close all;
+        figure(1);
+%         subplot(1,2,1);
+        imagesc(1:nb_ROIs_DK,1:nb_ROIs_DK,signif_cmp)
+        title('Significant diff - BH corrected')
+        axis square
+        filename=strcat(fig_path,'GroupAnalysis_Edge_Based_Reliable_Edges_BH_diff_Sess4_EEG_DK_p_thresh_', num2str(0.05),'_',num2str(freq_band_def{kk_freq}(1)), '_', num2str(freq_band_def{kk_freq}(2)),'_z_', num2str(z_thresh),'_binning_',num2str(n_binning(kk_binning)),'_min_size_aval_',num2str(min_size_aval(kk_min_size_aval)), '_Sess4_', modality, '_',atlas, '.png');
+%         saveas(gcf,strcat(filename,'.pdf'));
+        print('-f1', filename, '-dpng','-r600');
+        figure(2)
+%         subplot(1,2,2);
+        imagesc(1:nb_ROIs_DK,1:nb_ROIs_DK,signif_abs_cmp)
+        title('Significant abs(diff) - BH corrected')
+        axis square
+        filename=strcat(fig_path,'GroupAnalysis_Edge_Based_Reliable_Edges_BH_abs_diff_Sess4_EEG_DK_p_thresh_', num2str(0.05), '_',num2str(freq_band_def{kk_freq}(1)), '_', num2str(freq_band_def{kk_freq}(2)),'_z_', num2str(z_thresh),'_binning_',num2str(n_binning(kk_binning)),'_min_size_aval_',num2str(min_size_aval(kk_min_size_aval)), '_Sess4_', modality, '_',atlas, '.png');
+%         saveas(gcf,strcat(filename,'.pdf'));
+        print('-f2', filename, '-dpng','-r600');
+        
+%         DoMyViz_node_signif_indiv(cortex_15002V_MNI, idx_DK, node_cmp, strcat(fig_path,'GroupAnalysis_Reliable_Nodes_BH_diff_Sess4_EEG_DK_p_thresh_', num2str(p_thresh_BH_reliable)), 'Sess4_EEG_DK', p_thresh_stat);
+%         DoMyViz_node_signif_indiv(cortex_15002V_MNI, idx_DK, node_abs_cmp, strcat(fig_path,'GroupAnalysis_Reliable_Nodes_BH_abs_diff_Sess4_EEG_DK_p_thresh_', num2str(p_thresh_BH_reliable)), 'Sess4_EEG_DK', 1);
+        DoMyViz_node_rel(cortex_15002V_MNI, idx_DK, node_abs_cmp, strcat(fig_path,'GroupAnalysis_Reliable_Edge_Based_Nodes_BH_abs_diff_Sess4_EEG_DK_p_thresh_', num2str(0.05),'_',num2str(freq_band_def{kk_freq}(1)), '_', num2str(freq_band_def{kk_freq}(2)),'_z_', num2str(z_thresh), '_binning_',num2str(n_binning(kk_binning)),'_min_size_aval_',num2str(min_size_aval(kk_min_size_aval)),'_Sess4_', modality, '_',atlas), 'Sess4_EEG_DK')
+        DoMyViz_node_rel(cortex_15002V_MNI, idx_DK, node_cmp, strcat(fig_path,'GroupAnalysis_Reliable_Edge_Based_Nodes_BH_diff_Sess4_EEG_DK_p_thresh_', num2str(0.05),'_',num2str(freq_band_def{kk_freq}(1)), '_', num2str(freq_band_def{kk_freq}(2)),'_z_', num2str(z_thresh), '_binning_',num2str(n_binning(kk_binning)),'_min_size_aval_',num2str(min_size_aval(kk_min_size_aval)),'_Sess4_', modality, '_',atlas), 'Sess4_EEG_DK')
+            end
+%         end
+   end
+end
+
+%% Correlation - @MCC - no pre-selection here
+clc
+clearvars Preselect_edges_val_diff Preselect_edges_val_abs_diff Preselect_nodes_val_diff Preselect_nodes_val_abs_diff
+clearvars correl_nodes_abs_diff correl_nodes_diff correl_edges_abs_diff correl_edges_diff
+clearvars rho_nodes_diff pval_nodes_diff rho_nodes_abs_diff pval_nodes_abs_diff
+clearvars rho_edges_diff pval_edges_diff rho_edges_abs_diff pval_edges_abs_diff
+
+% Scores BCI (media sulla sessione, non per run)
+load(strcat(db_path,'behavior_20Subjects.mat'));
+Avg_BCI_Scores=cell2mat(behavior_updated.BCI.Perf.Sess4.Avg);
+% self-esteem
+Rosenberg_Scores=cell2mat(behavior_updated.PsyQuest.RosenbergScale);
+% MI scores
+Kinaesth_Scores=cell2mat(behavior_updated.PsyQuest.VMIQ_2.KinaestheticImagery);
+IntVis_Scores=cell2mat(behavior_updated.PsyQuest.VMIQ_2.InternalVisualImagery);
+ExtVis_Scores=cell2mat(behavior_updated.PsyQuest.VMIQ_2.ExternalVisualImagery);
+% anxiety
+STAI_YA_Scores=cell2mat(behavior_updated.PsyQuest.STAI_YA.Sess4);% the first not available
+% motivation, TODO if time, harder to interpret...
+
+
+% TODO:
+    % 1/ Selezione (aggiungere un criterio sul ad esempio p-val reliability 0.05 post-correz. 0.05 troppo basso) - stessa liste delle ROIs per tutti:
+        % - nodi che mostrano una differenza significativa fra MI & Rest > random
+    % 2/ Correlazione con BCI Scores (&/o altre metriche "behavioral")
+    % 3/ Plot sul scalp x i nodi, & su un connectome per gli edges, scatterplots (MI-Rest) vs BCI e/o (MI-Rest)/Rest vs BCI
+
+    
+for kk_freq=1:size(freq_band_def,1) % ogni banda di frequenza considerata
+%     for kk_zthresh=1:length(z_thresh) -1 % TODO pb 3.5 % ogni soglia x z-score 
+        for kk_binning=1:length(n_binning)    
+            for kk_min_size_aval=1:length(min_size_aval)
+                
+            % Selezione delle aree - not here!
+        p_thresh_stat=0.05;
+        load(strcat(db_path,'Reliable_Analysis_Edge_Based_BH_p_thresh_edges_', num2str(0.05),'_p_thresh_nodes_',num2str(0.05),'_Group_',num2str(freq_band_def{kk_freq}(1)), '_', num2str(freq_band_def{kk_freq}(2)),'_z_', num2str(z_thresh), '_binning_',num2str(n_binning(kk_binning)),'_min_size_aval_',num2str(min_size_aval(kk_min_size_aval)),'_Sess4_', modality, '_',atlas,'.mat'));
+
+%         % BH
+%         list_edges_diff=find(signif_cmp==1);
+%         list_edges_abs_diff=find(signif_abs_cmp==1); 
+
+
+            % Calcola i valori MI-Rest & abs(MI-Rest)
+        Preselect_edges_val_diff_2=[];
+        Preselect_edges_val_abs_diff_2=[];
+
+%         save(strcat(db_path,'Reliable_Analysis_Edge_Based_BH_p_thresh_edges_', num2str(0.05),'_p_thresh_nodes_',num2str(0.05),'_Group_',num2str(freq_band_def{kk_freq}(1)), '_', num2str(freq_band_def{kk_freq}(2)),'_z_', num2str(z_thresh), '_binning_',num2str(n_binning(kk_binning)),'_min_size_aval_',num2str(min_size_aval(kk_min_size_aval)),'_Sess4_', modality, '_',atlas,'.mat'),...
+
+        for kk_subj=1:nb_subj
+            filename_Avalanches_subj_file= strcat('Avalanches_Analysis_ds_',subject_IDs{kk_subj} ,'_',num2str(freq_band_def{kk_freq}(1)), '_', num2str(freq_band_def{kk_freq}(2)),'_z_', num2str(z_thresh), '_binning_',num2str(n_binning(kk_binning)),'_min_size_aval_',num2str(min_size_aval(kk_min_size_aval)),'_Sess4_', modality, '_',atlas);
+            load(strcat(db_path,'Stat_Analysis_Indiv_',filename_Avalanches_subj_file,'_BH_p_thresh_',num2str(p_thresh_stat),'.mat'));
+
+            
+                values_diff=DoMyMatrix_FromUpper(obs_diff,nb_ROIs_DK);
+                Preselect_edges_val_diff_2(:,:,kk_subj)=values_diff;
+
+                values_abs_diff=DoMyMatrix_FromUpper(obs_abs_diff,nb_ROIs_DK);
+                Preselect_edges_val_abs_diff_2(:,:,kk_subj)=values_abs_diff;
+
+
+        end
+
+%             % correlazione fra questi valori & avg BCI scores - only edges (cf preliminary work, that do not work with edges)
+% %             link_thresh_abs_diff=round(size(find(signif_abs_cmp>0),1)/nb_ROIs_DK); % not 0 but when better than random
+%             link_thresh_abs_diff=rr_abs_thresh;%round(size(find(signif_abs_cmp>0),1)/nb_ROIs_DK); % not 0 but when better than random
+%             list_nodes_temp_abs_diff=find(node_abs_cmp>link_thresh_abs_diff);
+%             
+% %             link_thresh_diff=round(size(find(signif_cmp>0),1)/nb_ROIs_DK); % not 0 but when better than random
+%             link_thresh_diff=rr_thresh;%round(size(find(signif_cmp>0),1)/nb_ROIs_DK); % not 0 but when better than random           
+%             list_nodes_temp_diff=find(node_cmp>link_thresh_diff);
+
+        %%    Correlation w/ BCI scores
+            % diff
+                for kk_regs=1:size(Preselect_edges_val_diff_2,1)
+                    for kk_tammaro=1:size(Preselect_edges_val_diff_2,1)
+                        prova=squeeze(Preselect_edges_val_diff_2(kk_tammaro,kk_regs,:))';%squeeze(gg(kk_tammaro,kk_regs,:))';
+                        [r, p] = corr(prova',Avg_BCI_Scores','Type','Spearman');
+                        rho_edges_diff(kk_tammaro,kk_regs)=r;
+                        pval_edges_diff(kk_tammaro,kk_regs)=p;
+                    end
+                    prova2=squeeze(sum(Preselect_edges_val_diff_2(:,kk_regs,:),1))';%squeeze(gg(kk_tammaro,kk_regs,:))';
+                    [r, p] = corr(prova2',Avg_BCI_Scores','Type','Spearman');
+                    rho_nodes_diff(kk_regs)=r;
+                    pval_nodes_diff(kk_regs)=p;    
+%                     if p<0.05
+%                         close all
+%                         figure(10)
+%                         scatter(Avg_BCI_Scores',prova2',72,'o', 'MarkerEdgeColor',[0.85 0.325 0.098],'MarkerFaceColor',[0.85 0.325 0.098]);
+%                         H=gca;
+%                         H.FontSize=21;
+%                         H.LineWidth=3;
+%                         axis square
+%                         h=lsline;
+%                         h.LineWidth=5;
+%         %                 title(strcat('r=',num2str(r,'%.2f'), ', p=',num2str(p,'%.3f'), ', ', labels_DK(kk_regs)), 'FontSize',30);
+%                         xlabel('BCI SCORES', 'FontSize',27);
+%                         ylabel('NODE STRENGTH, DIFF', 'FontSize',27);
+%         %                 saveas(gcf,strcat(fig_path,'Correlation_BCI_Scores_Edge_Based_BH_corr_nodes_diff_',num2str(kk_regs),'.pdf'));
+%                         print('-f10',strcat(fig_path,'Correlation_BCI_Scores_Edge_Based_BH_corr_nodes_diff_',num2str(kk_regs),'_',num2str(freq_band_def{kk_freq}(1)), '_', num2str(freq_band_def{kk_freq}(2)),'_z_', num2str(z_thresh), '_Sess4_', modality, '_',atlas,'_no_presel_correl.png'), '-dpng','-r600');
+% 
+%                     end
+
+                    prova3=squeeze(sum(abs(Preselect_edges_val_diff_2(:,kk_regs,:)),1))';%squeeze(gg(kk_tammaro,kk_regs,:))';
+                    [r, p] = corr(prova3',Avg_BCI_Scores','Type','Spearman');
+                    rho_abs_nodes_diff(kk_regs)=r;
+                    pval_abs_nodes_diff(kk_regs)=p;  
+%                     if p<0.05
+%                         close all
+%                         figure(10)
+%                         scatter(Avg_BCI_Scores',prova3',72,'o', 'MarkerEdgeColor',[0.85 0.325 0.098],'MarkerFaceColor',[0.85 0.325 0.098]);
+%                         H=gca;
+%                         H.LineWidth=3;
+%                         H.FontSize=15;
+%                         axis square
+%                         h=lsline;
+%                         h.LineWidth=5;
+%                         title(strcat('r=',num2str(r,'%.2f'), ', p=',num2str(p,'%.3f'), ', ', labels_DK(kk_regs)), 'FontSize',18);
+%                         ylabel('BCI Scores', 'FontSize',21);
+%                         xlabel('Abs-Node strength, diff', 'FontSize',21);
+%         %                 saveas(gcf,strcat(fig_path,'Correlation_BCI_Scores_Edge_Based_BH_corr_nodes_diff_',num2str(kk_regs),'.pdf'));
+%                         print('-f10',strcat(fig_path,'Correlation_BCI_Scores_Edge_Based_BH_corr_abs_nodes_diff_',num2str(kk_regs),'_',num2str(freq_band_def{kk_freq}(1)), '_', num2str(freq_band_def{kk_freq}(2)),'_z_', num2str(z_thresh), '_Sess4_', modality, '_',atlas,'_no_presel_correl.png'), '-dpng','-r600');
+% 
+%                     end
+             end
+                  vect_abs_nodes_diff_corr_BCI_p=ones(nb_ROIs_DK,1);
+                  vect_abs_nodes_diff_corr_BCI_r=zeros(nb_ROIs_DK,1);
+                  vect_abs_nodes_diff_corr_BCI_r_thresholded=vect_abs_nodes_diff_corr_BCI_r;
+                  vect_abs_nodes_diff_corr_BCI_p_thresholded=vect_abs_nodes_diff_corr_BCI_r;% logical, 1 if signif
+
+                  vect_nodes_diff_corr_BCI_p=ones(nb_ROIs_DK,1);
+                  vect_nodes_diff_corr_BCI_r=zeros(nb_ROIs_DK,1);
+                  vect_nodes_diff_corr_BCI_r_thresholded=vect_nodes_diff_corr_BCI_r;
+                  vect_nodes_diff_corr_BCI_p_thresholded=vect_nodes_diff_corr_BCI_r;
+
+                  matr_edges_diff_corr_BCI_p=ones(nb_ROIs_DK,nb_ROIs_DK);
+                  matr_edges_diff_corr_BCI_r=zeros(nb_ROIs_DK,nb_ROIs_DK);
+                  matr_edges_diff_corr_BCI_r_thresholded=matr_edges_diff_corr_BCI_r;
+                  matr_edges_diff_corr_BCI_p_thresholded=matr_edges_diff_corr_BCI_r;
+
+                  for kk_regs=1:size(Preselect_edges_val_diff_2,1)
+                     for kk_tammaro=1:size(Preselect_edges_val_diff_2,1)
+
+                        matr_edges_diff_corr_BCI_p(kk_tammaro,kk_regs)=pval_edges_diff(kk_tammaro,kk_regs);
+                        matr_edges_diff_corr_BCI_r(kk_tammaro,kk_regs)=rho_edges_diff(kk_tammaro,kk_regs);
+
+                        if matr_edges_diff_corr_BCI_p(kk_tammaro,kk_regs)~=1
+                            matr_edges_diff_corr_BCI_p(kk_regs,kk_tammaro)=matr_edges_diff_corr_BCI_p(kk_tammaro,kk_regs);
+                        end
+
+                        if matr_edges_diff_corr_BCI_r(kk_tammaro,kk_regs)~=0
+                            matr_edges_diff_corr_BCI_r(kk_regs,kk_tammaro)=matr_edges_diff_corr_BCI_r(kk_tammaro,kk_regs);
+                        end
+
+                    end
+                        vect_nodes_diff_corr_BCI_p(kk_regs)=pval_nodes_diff(kk_regs);
+                        vect_nodes_diff_corr_BCI_r(kk_regs)=rho_nodes_diff(kk_regs);
+                        vect_abs_nodes_diff_corr_BCI_p(kk_regs)=pval_abs_nodes_diff(kk_regs);
+                        vect_abs_nodes_diff_corr_BCI_r(kk_regs)=rho_abs_nodes_diff(kk_regs);
+
+                  end
+
+                  hhh_CORRRECT= pval_adjust(matr_edges_diff_corr_BCI_p(tril(true(size(matr_edges_diff_corr_BCI_p)),-1) & isnan(matr_edges_diff_corr_BCI_p)==0),'fdr');
+
+                  matr_edges_diff_corr_BCI_p_thresholded=matr_edges_diff_corr_BCI_p<0.05;
+                  matr_edges_diff_corr_BCI_r_thresholded(matr_edges_diff_corr_BCI_p_thresholded==1)=matr_edges_diff_corr_BCI_r(matr_edges_diff_corr_BCI_p_thresholded==1);
+                  vect_abs_nodes_diff_corr_BCI_p_thresholded=vect_abs_nodes_diff_corr_BCI_p<0.05;
+                  vect_nodes_diff_corr_BCI_p_thresholded=vect_nodes_diff_corr_BCI_p<0.05;
+                  vect_abs_nodes_diff_corr_BCI_r_thresholded(vect_abs_nodes_diff_corr_BCI_p<0.05)=vect_abs_nodes_diff_corr_BCI_r(vect_abs_nodes_diff_corr_BCI_p<0.05);
+                  vect_nodes_diff_corr_BCI_r_thresholded(vect_nodes_diff_corr_BCI_p<0.05)=vect_nodes_diff_corr_BCI_r(vect_nodes_diff_corr_BCI_p<0.05);
+                
+                save(strcat(db_path,'Correlation_Analysis_BCI_Based_Nodi_Group_OptPerm_Paper','_',num2str(freq_band_def{kk_freq}(1)), '_', num2str(freq_band_def{kk_freq}(2)),'_z_', num2str(z_thresh), '_binning_',num2str(n_binning(kk_binning)),'_min_size_aval_',num2str(min_size_aval(kk_min_size_aval)), '_Sess4_', modality, '_',atlas,'_no_presel_correl.mat'),...
+                  'matr_edges_diff_corr_BCI_p',...
+                  'matr_edges_diff_corr_BCI_r',...
+                  'vect_abs_nodes_diff_corr_BCI_p',...
+                  'vect_nodes_diff_corr_BCI_p',...
+                  'vect_abs_nodes_diff_corr_BCI_r',...
+                  'vect_nodes_diff_corr_BCI_r',...
+                  'matr_edges_diff_corr_BCI_p_thresholded',...
+                  'matr_edges_diff_corr_BCI_r_thresholded',...
+                  'vect_abs_nodes_diff_corr_BCI_p_thresholded',...
+                  'vect_nodes_diff_corr_BCI_p_thresholded',...
+                  'vect_abs_nodes_diff_corr_BCI_r_thresholded',...
+                  'vect_nodes_diff_corr_BCI_r_thresholded');
+
+
+            end
+        end
+%             end
+end
+
