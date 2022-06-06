@@ -3,7 +3,7 @@
 ---
 This repository contains the code and supporting documents associated with the following manuscript:
 
-M.-C. Corsi*, P. Sorrentino*, D. Schwartz, N. George, L. Hugueville, A. E. Kahn, S. Dupont, D. S. Bassett, V. Jirsa, (2022). Measuring  brain critical dynamics to inform Brain-Computer Interfaces. ArXiv. **TODO-add link**
+M.-C. Corsi*, P. Sorrentino*, D. Schwartz, N. George, L. Hugueville, A. E. Kahn, S. Dupont, D. S. Bassett, V. Jirsa, F. De Vico Fallani (2022). Measuring  brain critical dynamics to inform Brain-Computer Interfaces. ArXiv. **TODO-add link**
 
 
 *These authors contributed equally to this work.
