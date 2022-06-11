@@ -38,10 +38,10 @@ This repository contains the code used to run the analysis performed and to plot
 ### Figure 1 - Overview of the analysis 
 ![Fig. 1](./Figures_paper/Fig1.png)
 *A. Subject-level analysis. B. Group-level analysis. C. Correlation analysis.*
-**TODO**
+
 
 ### Figure 2 - Main results
 ![Fig. 2](./Figures_paper/Fig2.png)
 *A. Edge-wise differences in transition probability. B. Edge-wise correlations. C. Node-wise differences in transition probabilities. D. Node-wise differences in transition probabilities.*
-**TODO**
+
 
