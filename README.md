@@ -3,7 +3,7 @@
 ---
 This repository contains the code and supporting documents associated with the following manuscript:
 
-M.-C. Corsi*, P. Sorrentino*, D. Schwartz, N. George, L. Hugueville, A. E. Kahn, S. Dupont, D. S. Bassett, V. Jirsa, F. De Vico Fallani (2022). Measuring  brain critical dynamics to inform Brain-Computer Interfaces. ArXiv. **TODO-add link**
+M.-C. Corsi*, P. Sorrentino*, D. Schwartz, N. George, L. Hugueville, A. E. Kahn, S. Dupont, D. S. Bassett, V. Jirsa, F. De Vico Fallani (2022). Measuring  brain critical dynamics to inform Brain-Computer Interfaces. Biorxiv. https://www.biorxiv.org/content/10.1101/2022.06.14.495887v1
 
 
 *These authors contributed equally to this work.
@@ -37,11 +37,13 @@ This repository contains the code used to run the analysis performed and to plot
 
 ### Figure 1 - Overview of the analysis 
 ![Fig. 1](./Figures_paper/Fig1.png)
+
 *A. Subject-level analysis. B. Group-level analysis. C. Correlation analysis.*
-**TODO**
+
 
 ### Figure 2 - Main results
 ![Fig. 2](./Figures_paper/Fig2.png)
+
 *A. Edge-wise differences in transition probability. B. Edge-wise correlations. C. Node-wise differences in transition probabilities. D. Node-wise differences in transition probabilities.*
-**TODO**
+
 
