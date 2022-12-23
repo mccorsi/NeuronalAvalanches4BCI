@@ -7,5 +7,5 @@ filtered_series={};
      l_freq=freq_band_def{kk_freq}(1);
      h_freq=freq_band_def{kk_freq}(2);
 
-     [b,a]=butter(2,[l_freq h_freq]/(fs)); %imposta parametri filtro
+     [b,a]=butter(2,[l_freq h_freq]/(fs)); % parameters of the filter
      filtered_series{kk_freq}=filter(b,a,timeseries',[],1); %filtra

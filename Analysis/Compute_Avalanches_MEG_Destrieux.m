@@ -6,23 +6,22 @@ function Compute_Avalanches_MEG_Destrieux(path_file_MI, path_file_Rest, subject_
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all; clc;
 
-%% load data - puo necessitare tempo (>1Go per file)...
+%% load data - can require time (>1Go for each file)...
 load(path_file_MI);
 load(path_file_Rest);
 
-%% definizione degli parametri 
-nb_subj=size(Data_MEG_Baseline_Destrieux, 1); % numeri di soggetti
-nb_ROIs=size(Data_MEG_Baseline_Destrieux{1,1}, 1); % x verificare il numero di ROIs
-nbsamples =size(Data_MEG_Baseline_Destrieux{1,1}, 2); % numero di campioni
+%% parameters definition
+nb_subj=size(Data_MEG_Baseline_Destrieux, 1); % number of subjects
+nb_ROIs=size(Data_MEG_Baseline_Destrieux{1,1}, 1); % to check the number of ROIs
+nbsamples =size(Data_MEG_Baseline_Destrieux{1,1}, 2); % number of samples
 ROIs = [1:nb_ROIs]; 
 thresh = z_thresh;
 temp = zeros(nb_ROIs,nbsamples);
 
-%% Valanghe
-for kk_subj=1:nb_subj % ogni soggetto
-    %% define il dataset da usare x questo caso
+%% Avalanches
+for kk_subj=1:nb_subj % each subject
+    %% define dataset
     close all; clc;
-    % per default, avevo inizialiato le cells con x 96 trials ma in caso di "bad trials" questo numero puo essere diverso
     notempty_MI_idx=find(~cellfun(@isempty,{Data_MEG_MI_Destrieux{kk_subj,:}}));
     notempty_Baseline_idx=find(~cellfun(@isempty,{Data_MEG_Baseline_Destrieux{kk_subj,:}}));
     nb_trials_tot=size(notempty_MI_idx,2) + size(notempty_Baseline_idx,2);
@@ -38,13 +37,13 @@ for kk_subj=1:nb_subj % ogni soggetto
     Dataset_MEG_Destrieux.data=[Dataset_MEG_MI_Destrieux.data,Dataset_MEG_Baseline_Destrieux.data];
     Dataset_MEG_Destrieux.condition=[Dataset_MEG_MI_Destrieux.condition,Dataset_MEG_Baseline_Destrieux.condition];
 
-    %% calcolo delle "rasterplot" x ogni trial
-    % concat MI & Baseline x calcolare il z-score
+    %% "rasterplot" for each trial
+    % concat MI & Baseline to compute z-scores
     data=[Dataset_MEG_Destrieux.data{:}];
     c=[1:nbsamples:(nb_trials_tot+1)*nbsamples];
     
-    for kk_freq=1:size(freq_band_def,1) % ogni banda di frequenza considerata
-        for kk_zthresh=1:length(z_thresh) % ogni soglia x z-score  
+    for kk_freq=1:size(freq_band_def,1) % each frequency band
+        for kk_zthresh=1:length(z_thresh) % each z-score threshold
             for kk_min_size_aval=1:size(min_size_aval)
                 
                 disp(strcat('%%%%%%%%%%%%%%%%%% MEG - DK - ',subject_IDs{kk_subj}, ' - ', num2str(freq_band_def{kk_freq}(1)), '-', num2str(freq_band_def{kk_freq}(2)),'Hz ',' - z_thresh:', num2str(z_thresh(kk_zthresh)), ' %%%%%%%%%%%%%%%%%%'));
@@ -64,8 +63,6 @@ for kk_subj=1:nb_subj % ogni soggetto
                     activations_trials{kk_trials-1}=activations(:,c(kk_trials-1) : c(kk_trials)-1);
 
                  %% binning
-                    % TODO: aggiungere ref ai trials in aval_binned - fatto il 01/03/2022, MCC
-
                     % varies the binning of the avalanches 
                     n_binning=2:3;
     %                 aval_binned=cell(1,size(n_binning,2));
@@ -105,13 +102,12 @@ for kk_subj=1:nb_subj % ogni soggetto
                                        kk1=kk1+1;
                                    end    
                             end
-                        % TODO: ad applicare su tutti i scripts "MI_vs_Rest"
-                        mask=sum(out~=0,3)>(0.20*size(out,3)); 
+                        mask=sum(out~=0,3)>(0.20*size(out,3));
                         out_temp2=zeros(size(out));
                         out_temp2(repmat(mask,1,1,size(out,3)))=out(repmat(mask,1,1,size(out,3)));
 
                         out_temp=sum(out_temp2,3)./sum(out_temp2~=0,3);
-                        % x rendere la matrice simmetrica
+                        % to make the matrix symmetrical
                         out_temp(isnan(out_temp))=0;
                         TM_out{kk_binning}{kk_trials}=(out_temp+out_temp')./2;
 
@@ -132,7 +128,7 @@ for kk_subj=1:nb_subj % ogni soggetto
                 TM_Diff{kk_binning}={(TM_MI{kk_binning}{:}-TM_Baseline{kk_binning}{:})};
                 TM_abs_Diff{kk_binning}={abs(TM_Diff{kk_binning}{:})};
       end
-           % salva i risultati in a .mat file in caso x altre analisi
+           % save results in a single .mat file
 
             save(strcat(db_path,'Avalanches_Analysis_ds_',subject_IDs{kk_subj} ,'_',num2str(freq_band_def{kk_freq}(1)), '_', num2str(freq_band_def{kk_freq}(2)),'_z_', num2str(z_thresh(kk_zthresh)), '_min_size_aval_',num2str(min_size_aval(kk_min_size_aval)),'_Sess4_MEG_Destrieux.mat'),...
                 'Dataset_MEG_Destrieux',...

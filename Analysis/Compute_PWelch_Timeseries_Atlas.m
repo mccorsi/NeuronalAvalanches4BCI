@@ -11,7 +11,7 @@ fig_path=strcat(root_path,'Figures/');
 
 cd(strcat(root_path,'/Analysis'))
 Start_SessionMatlab(root_path)
-%% lista degli progetti Brainstorm da usare
+%% Brainstorm projects list
 nb_subj=20;
 nb_runs=6;
 nb_trials=16; % per condizione & per run
@@ -31,7 +31,7 @@ for kk_subj=1:nb_subj
     Database_bst.Protocol_IDs{kk_subj}=strcat(subject_IDs{kk_subj},info_sess);
 end
 
-% load la lista degli files da usare per ogni soggetto --> sFilesGroup
+% load list of files to be used for each subject --> sFilesGroup
 List_Files_Power
 
 %%
@@ -48,7 +48,7 @@ for kk_subj=1:nb_subj
         error(['Unknown protocol: ' ProtocolName]);
     end
 
-    % seleziona il protocollo
+    % selection of the protocol
     gui_brainstorm('SetCurrentProtocol', iProtocol);
 
         idx_MEG_MI_DK=1;

@@ -29,7 +29,9 @@ Large-scale interactions among multiple brain regions manifest as bursts of acti
 
 ## Code
 This repository contains the code used to run the analysis performed and to plot the figures.
-
+Analysis was performed with the following Matlab version: 9.10.0.1649659 (R2021a) Update 1.
+For a complete list of the Matlab packages used for the analysis, please refer to the 'Start_SessionMatlab.m' file.
+In 'requirements.txt' a list of all the Python dependencies is proposed to plot the connectomes.
 
 
 ---
