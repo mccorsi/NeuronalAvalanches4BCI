@@ -24,7 +24,8 @@ M.-C. Corsi*, P. Sorrentino*, D. Schwartz, N. George, L. Hugueville, A. E. Kahn,
 
 ---
 ## Abstract
-Large-scale interactions among multiple brain regions manifest as bursts of activations, called neuronal avalanches, which reconfigure according to the task at hand and, hence, might constitute natural candidates to design brain-computer interfaces (BCI). To test this hypothesis, we compared source-reconstructed magneto/electroencephalography during resting-state and a motor imagery task performed within a BCI protocol. For each condition, we defined an individual avalanche transition matrix, tracking the probability that an avalanche would spread across any two regions. The edges whose transition probabilities significantly differed between conditions hinged selectively on premotor regions in all subjects, defining a topography related to the task. Furthermore, the individual differences in the transition probabilities for edges between pre/motor regions and parietal ones positively related to the individual task performance. Our results show that the patterns of propagation of large-scale perturbations are related to behavior and can be used to inform brain-computer interfaces.
+Large-scale interactions among multiple brain regions manifest as bursts of activations called neuronal avalanches, which reconfigure according to the task at hand and, hence, might constitute natural candidates to design brain-computer interfaces (BCI). To test this hypothesis, we used source-reconstructed magneto/electroencephalography, during resting state and a motor imagery task performed within a BCI protocol, To track the probability that an avalanche would spread across any two regions. To this end, we built an avalanche transition matrix (ATM) and demonstrated that the edges whose transition probabilities significantly differed between conditions hinged selectively on premotor regions in all subjects, defining a task-related topography which was predictive of individual performance. Furthermore, we showed that the topology of the ATMs allows task-decoding  above the current gold standard, suggesting that they might be used to inform brain-computer interfaces.
+
 
 
 ## Code
@@ -43,9 +44,21 @@ In 'requirements.txt' a list of all the Python dependencies is proposed to plot 
 *A. Subject-level analysis. B. Group-level analysis. C. Correlation analysis.*
 
 
-### Figure 2 - Main results
+### Figure 2 - Reliability analysis
 ![Fig. 2](./Figures_paper/Fig2.png)
 
-*A. Edge-wise differences in transition probability. B. Edge-wise correlations. C. Node-wise differences in transition probabilities. D. Node-wise differences in transition probabilities.*
+*A. Edge-wise differences in transition probability. B. Edge-wise differences in transition probability from hit/miss trials. C. Node-wise differences in transition probability. D. Correlation analysis between the contrast topology (CT) and the success rate. E. Linear model  to predict BCI scores from the contrast topology (CT).*
+
+
+### Figure 3 - Classification analysis
+![Fig. 2](./Figures_paper/Fig3.png)
+
+*A & D. Group-level classification performance obtained from MEG and EEG data. B & E. Individual-level classification performance from MEG data and EEG data. C & F. Individual-level classification performance variability from MEG data and EEG data.*
+
+### Figure 4 - Correlation analysis
+![Fig. 2](./Figures_paper/Fig4.png)
+
+*A. Edge-wise correlations. B. Node-wise differences in transition probabilities.*
+
 
 
