@@ -48,7 +48,7 @@ In 'requirements.txt' a list of all the Python dependencies is proposed to plot 
 ### Figure 2 - Reliability analysis
 ![Fig. 2](./Figures_paper/Fig2.png)
 
-*A. Edge-wise differences in transition probability. B. Edge-wise differences in transition probability between hit/miss trials. C. Node-wise differences in transition probability. D. Correlation analysis between the contrast topology (CT) and the success rate. E. Linear model  to predict BCI scores from the contrast topology (CT).*
+*A. Edge-wise differences in transition probability. B. Edge-wise differences in transition probability between hit/miss trials. C. Node-wise differences in transition probability. *
 
 
 ### Figure 3 - Classification analysis
