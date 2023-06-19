@@ -3,7 +3,7 @@
 ---
 This repository contains the code and supporting documents associated with the following manuscript:
 
-M.-C. Corsi*, P. Sorrentino*, D. Schwartz, N. George, L. Hugueville, A. E. Kahn, S. Dupont, D. S. Bassett, V. Jirsa, F. De Vico Fallani (2022). Measuring  brain critical dynamics to inform Brain-Computer Interfaces. Biorxiv. https://www.biorxiv.org/content/10.1101/2022.06.14.495887v1
+M.-C. Corsi*, P. Sorrentino*, D. Schwartz, N. George, L. Hugueville, A. E. Kahn, S. Dupont, D. S. Bassett, V. Jirsa, F. De Vico Fallani (2022). Measuring Neuronal Avalanches to inform Brain-Computer Interfaces. Biorxiv. https://www.biorxiv.org/content/10.1101/2022.06.14.495887v1
 
 
 *These authors contributed equally to this work.
@@ -14,6 +14,8 @@ M.-C. Corsi*, P. Sorrentino*, D. Schwartz, N. George, L. Hugueville, A. E. Kahn,
 * [Pierpaolo Sorrentino](https://scholar.google.nl/citations?user=T1k8qBsAAAAJ&hl=en), Institut de Neuroscience des Systèmes, Aix-Marseille University
 * Denis Schwartz, CERMEP, Lyon
 * Nathalie George, Sorbonne Université, Institut du Cerveau
+* Leonardo Gollo, Monash University
+* Sylvain Chevallier, LISN-CNRS, Université Paris-Saclay
 * Laurent Hugueville, Sorbonne Université, Institut du Cerveau
 * Ari E. Kahn, University of Pennsylvania, Philadelphia
 * Sophie Dupont, Sorbonne Université, Institut du Cerveau
@@ -24,7 +26,7 @@ M.-C. Corsi*, P. Sorrentino*, D. Schwartz, N. George, L. Hugueville, A. E. Kahn,
 
 ---
 ## Abstract
-Large-scale interactions among multiple brain regions manifest as bursts of activations called neuronal avalanches, which reconfigure according to the task at hand and, hence, might constitute natural candidates to design brain-computer interfaces (BCI). To test this hypothesis, we used source-reconstructed magneto/electroencephalography, during resting state and a motor imagery task performed within a BCI protocol. To track the probability that an avalanche would spread across any two regions we built an avalanche transition matrix (ATM) and demonstrated that the edges whose transition probabilities significantly differed between conditions hinged selectively on premotor regions in all subjects, defining a task-related topography which was predictive of individual performance. Furthermore, we showed that the topology of the ATMs allows task-decoding above the current gold standard, suggesting that they might be used to inform brain-computer interfaces.
+Large-scale interactions among multiple brain regions manifest as bursts of activations called neuronal avalanches, which reconfigure according to the task at hand and, hence, might constitute natural candidates to design brain-computer interfaces (BCI). To test this hypothesis, we used source-reconstructed magneto/electroencephalography, during resting state and a motor imagery task performed within a BCI protocol. To track the probability that an avalanche would spread across any two regions we built an avalanche transition matrix (ATM) and demonstrated that the edges whose transition probabilities significantly differed between conditions hinged selectively on premotor regions in all subjects. Furthermore, we showed that the topology of the ATMs allows task-decoding above the current gold standard. Hence, our results suggest that Neuronal Avalanches might capture interpretable differences between tasks that can be used to inform brain-computer interfaces.
 
 
 ## Code
