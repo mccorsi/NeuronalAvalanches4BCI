@@ -1,4 +1,4 @@
-# NeuronalAvalanches4BCI
+# Measuring Neuronal Avalanches to inform Brain-Computer Interfaces
 
 ---
 This repository contains the code and supporting documents associated with the following manuscript:
