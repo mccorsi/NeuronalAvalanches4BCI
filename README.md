@@ -3,7 +3,7 @@
 ---
 This repository contains the code and supporting documents associated with the following manuscript:
 
-M.-C. Corsi*, P. Sorrentino*, D. Schwartz, N. George, L. Hugueville, A. E. Kahn, S. Dupont, D. S. Bassett, V. Jirsa, F. De Vico Fallani (2022). Measuring Neuronal Avalanches to inform Brain-Computer Interfaces. Biorxiv. https://www.biorxiv.org/content/10.1101/2022.06.14.495887v1
+M.-C. Corsi*, P. Sorrentino*, D. Schwartz, N. George, L. Hugueville, A. E. Kahn, S. Dupont, D. S. Bassett, V. Jirsa, F. De Vico Fallani (2022). Measuring Neuronal Avalanches to inform Brain-Computer Interfaces. iScience. https://doi.org/10.1016/j.isci.2023.108734
 
 
 *These authors contributed equally to this work.
